@@ -99,3 +99,28 @@ const GameController = (function () {
 
     return { playRound, getActivePlayer, restart };
 })();
+
+const displayController = (function () { // IIFE 画面控制器只需要一个
+    const boardDiv = document.querySelector(".board");
+    const turnDiv = document.querySelector(".turn");
+
+    const render = () => { //重播画面的函数
+        boardDiv.textContent = "";
+
+        const board = Gameboard.getBoard();
+        board.forEach((cell, index) => {
+            const cellButton = document.createElement("button");
+            cellButton.classList.add("cell"); // 加上class cell
+            cellButton.dataset.index = index; // 在按钮上贴一张编号标签
+            cellButton.textContent = cell; // 把格子内容写进按钮，空的就显示空白
+            boardDiv.appendChild(cellButton); 
+        });
+
+        const player = GameController.getActivePlayer();
+        turnDiv.textContent = `${player.name}'s turn (${player.mark})`;
+    };
+
+    render();
+
+    return { render };
+})(); // 立刻执行
