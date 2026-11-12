@@ -1,11 +1,11 @@
-const Gameboard = (function() { //准备立刻执行，这就是IIFE
+const Gameboard = (function () {
     const board = Array(9).fill("");
 
-    const getBoard = () => [...board];  // 返回的是复印本
+    const getBoard = () => [...board];
 
     const placeMark = (index, mark) => {
-        if(index < 0 || index > 8) return false;
-        if(board[index] !== "") return false;
+        if (index < 0 || index > 8) return false;
+        if (board[index] !== "") return false;
         board[index] = mark;
         return true;
     };
@@ -14,11 +14,11 @@ const Gameboard = (function() { //准备立刻执行，这就是IIFE
         board.fill("");
     };
 
-    return { getBoard, placeMark, reset};
+    return { getBoard, placeMark, reset };
 })();
 
-function createPlayer(name, mark){
-    return {name, mark};
+function createPlayer(name, mark) {
+    return { name, mark };
 }
 
 const GameController = (function () {
@@ -28,6 +28,7 @@ const GameController = (function () {
     ];
     let activePlayer = players[0];
     let gameOver = false;
+    let result = "";                                         // NEW
 
     const winningLines = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -36,6 +37,12 @@ const GameController = (function () {
     ];
 
     const getActivePlayer = () => activePlayer;
+    const getResult = () => result;                          // NEW
+
+    const setPlayerNames = (name1, name2) => {               // NEW
+        players[0].name = name1 || "Player 1";               // NEW
+        players[1].name = name2 || "Player 2";               // NEW
+    };                                                       // NEW
 
     const switchPlayer = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -75,13 +82,15 @@ const GameController = (function () {
 
         if (checkWinner()) {
             gameOver = true;
-            console.log(`${activePlayer.name} wins!`);
+            result = `${activePlayer.name} wins!`;           // NEW
+            console.log(result);                             // CHANGED
             return;
         }
 
         if (checkTie()) {
             gameOver = true;
-            console.log("It's a tie!");
+            result = "It's a tie!";                          // NEW
+            console.log(result);                             // CHANGED
             return;
         }
 
@@ -93,16 +102,20 @@ const GameController = (function () {
         Gameboard.reset();
         activePlayer = players[0];
         gameOver = false;
+        result = "";                                         // NEW
         printBoard();
         console.log(`${activePlayer.name}'s turn (${activePlayer.mark})`);
     };
 
-    return { playRound, getActivePlayer, restart };
+    return { playRound, getActivePlayer, getResult, setPlayerNames, restart }; // CHANGED
 })();
 
 const displayController = (function () {
     const boardDiv = document.querySelector(".board");
     const turnDiv = document.querySelector(".turn");
+    const player1Input = document.querySelector("#player1"); // NEW
+    const player2Input = document.querySelector("#player2"); // NEW
+    const startButton = document.querySelector(".start-btn"); // NEW
 
     const render = () => {
         boardDiv.textContent = "";
@@ -116,11 +129,16 @@ const displayController = (function () {
             boardDiv.appendChild(cellButton);
         });
 
-        const player = GameController.getActivePlayer();
-        turnDiv.textContent = `${player.name}'s turn (${player.mark})`;
+        const result = GameController.getResult();           // NEW
+        if (result) {                                        // NEW
+            turnDiv.textContent = result;                    // NEW
+        } else {                                             // NEW
+            const player = GameController.getActivePlayer();
+            turnDiv.textContent = `${player.name}'s turn (${player.mark})`;
+        }                                                    // NEW
     };
 
-    const handleClick = (event) => { //处理点击的函数
+    const handleClick = (event) => {
         const index = event.target.dataset.index;
         if (index === undefined) return;
 
@@ -128,7 +146,16 @@ const displayController = (function () {
         render();
     };
 
+    const handleStart = () => {                              // NEW
+        const name1 = player1Input.value.trim();             // NEW
+        const name2 = player2Input.value.trim();             // NEW
+        GameController.setPlayerNames(name1, name2);         // NEW
+        GameController.restart();                            // NEW
+        render();                                            // NEW
+    };                                                       // NEW
+
     boardDiv.addEventListener("click", handleClick);
+    startButton.addEventListener("click", handleStart);      // NEW
 
     render();
 

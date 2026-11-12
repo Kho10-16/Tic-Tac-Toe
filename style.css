@@ -18,3 +18,20 @@ body {
     border: none;
     cursor: pointer;
 }
+
+.setup {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.setup input,
+.setup button {
+    padding: 8px;
+    font-size: 1rem;
+}
+
+.turn {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
